@@ -122,6 +122,14 @@ Add event to the analytics overview in the [company Notion](https://www.notion.s
 
 ## Changelog
 
+### 1.17
+
+Added:
+
+-   create-backup
+    -   status: 'finished' | 'error'
+    -   error: string
+
 ### 1.16
 
 Added:
