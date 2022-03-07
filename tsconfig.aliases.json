@@ -2,7 +2,6 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "paths": {
-            "@suite/*": ["./packages/suite/src/*"],
             "@suite": ["./packages/suite/src/index"],
 
             "@suite-components/*": ["./packages/suite/src/components/suite/*"],
@@ -136,7 +135,9 @@
 
             "@desktop/*": ["./packages/suite-desktop/src/*"],
             "@desktop-electron/*": ["./packages/suite-desktop/src-electron/*"],
-            "@trezor/utils": ["./packages/utils/src"]
+            "@trezor/utils": ["./packages/utils/src"],
+
+            "@suite/*": ["./packages/suite/src/*"]
         }
     }
 }
