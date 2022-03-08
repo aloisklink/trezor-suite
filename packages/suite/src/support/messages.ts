@@ -4522,7 +4522,7 @@ export default defineMessages({
         defaultMessage: 'Accounts are still loading. Please wait before adding a new one.',
     },
     RECIPIENT_ADDRESS: {
-        defaultMessage: 'Address',
+        defaultMessage: 'Address or lightning invocie or payment request (bolt11) ???',
         id: 'RECIPIENT_ADDRESS',
     },
     RECIPIENT_SCAN: {

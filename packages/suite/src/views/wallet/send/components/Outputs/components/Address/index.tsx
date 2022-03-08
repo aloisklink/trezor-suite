@@ -3,6 +3,12 @@ import styled from 'styled-components';
 import { isValidChecksumAddress, toChecksumAddress } from 'ethereumjs-util';
 import { Input, useTheme, variables, Icon, Button } from '@trezor/components';
 import { AddressLabeling, Translation, ReadMoreLink, MetadataLabeling } from '@suite-components';
+import { decodePaymentRequest, getInvoiceDetails } from '@trezor/lightning';
+import { getUnusedAddressFromAccount } from '@wallet-utils/coinmarket/coinmarketUtils';
+
+// import { bech32 } from 'bech32';
+// import BigNumber from 'bignumber.js';
+
 import { InputError } from '@wallet-components';
 import { scanQrRequest } from '@wallet-actions/sendFormActions';
 import { useActions, useDevice } from '@suite-hooks';
@@ -179,11 +185,27 @@ const Address = ({ output, outputId, outputsCount }: Props) => {
             name={inputName}
             data-test={inputName}
             defaultValue={addressValue}
-            maxLength={MAX_LENGTH.ADDRESS}
+            maxLength={MAX_LENGTH.ADDRESS_OR_PAYMENT_REQUEST}
             innerRef={register({
                 required: 'RECIPIENT_IS_NOT_SET',
-                validate: value => {
-                    if (!isAddressValid(value, symbol)) {
+                validate: async value => {
+                    let bolt11Decode;
+                    try {
+                        bolt11Decode = decodePaymentRequest(value);
+                    } catch (e) {
+                        // Ignore it.
+                    }
+                    console.log('bolt11Decode', bolt11Decode);
+                    if (networkType === 'bitcoin' && bolt11Decode) {
+                        const { bitcoins } = bolt11Decode;
+                        const res = await getInvoiceDetails(value);
+                        console.log('res', res);
+                        const { fee } = res;
+                        const btcAmountWithFees = bitcoins + (fee * 1e8);
+                        // TODO: display box with information about fees and value in invoice, as well as description from the invoice
+                        setValue(`outputs[${outputId}].amount`, btcAmountWithFees, { shouldValidate: true });
+                        setValue(`outputs[${outputId}].isBolt11`, true);
+                    } else if (!isAddressValid(value, symbol)) {
                         const addressDeprecatedUrl = isAddressDeprecated(value, symbol);
                         if (addressDeprecatedUrl) {
                             return (

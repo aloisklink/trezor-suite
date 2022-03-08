@@ -2,11 +2,24 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSendFormContext } from '@wallet-hooks';
-import { variables } from '@trezor/components';
+import {
+    variables,
+    Button,
+    // ButtonProps
+} from '@trezor/components';
+import { getUnusedAddressFromAccount } from '@wallet-utils/coinmarket/coinmarketUtils';
+import { requestSubmarineSwap } from '@trezor/lightning';
+
+import { useSelector } from '@suite-hooks';
+
+
 import Address from './components/Address';
 import Amount from './components/Amount';
 import OpReturn from './components/OpReturn';
 import { ANIMATION } from '@suite-config';
+import { Account } from '@suite/types/wallet';
+
+
 
 const Wrapper = styled.div``;
 
@@ -43,14 +56,34 @@ const Row = styled.div`
     }
 `;
 
-interface Props {
+interface OutputsProps {
     disableAnim?: boolean; // used in tests, with animations enabled react-testing-library can't find output fields
 }
 
-const Outputs = ({ disableAnim }: Props) => {
+const createSubmarineSwap = async (account: Account | undefined) => {
+    if (!account){
+        return;
+    }
+    console.log('account', account);
+    const { address } = getUnusedAddressFromAccount(account);
+    console.log('address', address);
+    if (!address) {
+        return;
+    }
+    const swap = await requestSubmarineSwap();
+    console.log('swap', swap);
+}
+
+const Outputs = ({ disableAnim }: OutputsProps) => {
     const { outputs } = useSendFormContext();
     const [renderedOutputs, setRenderedOutputs] = useState(1);
     const lastOutputRef = useRef<HTMLDivElement | null>(null);
+    const { selectedAccount } = useSelector(state => ({
+        selectedAccount: state.wallet.selectedAccount,
+        // receive: state.wallet.receive,
+        // device: state.suite.device,
+        // transactions: state.wallet.transactions.transactions,
+    }));
 
     const onAddAnimationComplete = () => {
         // scrolls only on adding outputs, doesn't scroll on removing them
@@ -70,6 +103,8 @@ const Outputs = ({ disableAnim }: Props) => {
     }, [outputs.length, renderedOutputs, setRenderedOutputs]);
 
     const animation = outputs.length > 1 && !disableAnim ? ANIMATION.EXPAND : {}; // do not animate if there is only 1 output, prevents animation on clear
+
+    console.log('outputs', outputs);
 
     return (
         <AnimatePresence initial={false}>
@@ -96,7 +131,18 @@ const Outputs = ({ disableAnim }: Props) => {
                                         />
                                     </Row>
                                     <Row>
+                                        <div>This is a lightning network invoice</div>
+                                    </Row>
+                                    <Row>
                                         <Amount output={outputs[index]} outputId={index} />
+                                    </Row>
+
+                                    <Row>
+                                        {/* TODO: Here should go a request swap button */}
+                                        <div>Request button</div>
+                                        <Button onClick={() => createSubmarineSwap(selectedAccount.account)}>
+                                            Request
+                                        </Button>
                                     </Row>
                                 </>
                             )}
