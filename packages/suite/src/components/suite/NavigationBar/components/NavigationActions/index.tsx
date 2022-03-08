@@ -34,10 +34,6 @@ const MobileWrapper = styled.div`
     padding: 0px 16px;
 `;
 
-const ActionItemWrapper = styled.div`
-    position: relative;
-`;
-
 const Separator = styled.div`
     border: 1px solid ${props => props.theme.STROKE_GREY};
     height: 38px;
@@ -95,23 +91,21 @@ const NavigationActions = (props: Props) => {
 
     return (
         <WrapperComponent>
-            <ActionItemWrapper>
-                <ActionItem
-                    onClick={() => {
-                        analytics.report({
-                            type: 'menu/toggle-discreet',
-                            payload: {
-                                value: !discreetMode,
-                            },
-                        });
-                        setDiscreetMode(!discreetMode);
-                    }}
-                    isActive={discreetMode}
-                    label={<Translation id="TR_DISCREET" />}
-                    icon={discreetMode ? 'HIDE' : 'SHOW'}
-                    isMobileLayout={props.isMobileLayout}
-                />
-            </ActionItemWrapper>
+            <ActionItem
+                onClick={() => {
+                    analytics.report({
+                        type: 'menu/toggle-discreet',
+                        payload: {
+                            value: !discreetMode,
+                        },
+                    });
+                    setDiscreetMode(!discreetMode);
+                }}
+                isActive={discreetMode}
+                label={<Translation id="TR_DISCREET" />}
+                icon={discreetMode ? 'HIDE' : 'SHOW'}
+                isMobileLayout={props.isMobileLayout}
+            />
 
             {!!customBackends.length &&
                 (props.isMobileLayout ? (
@@ -126,26 +120,21 @@ const NavigationActions = (props: Props) => {
                     <NavBackends customBackends={customBackends} />
                 ))}
 
-            {isDesktop() && (
-                <>
-                    {props.isMobileLayout ? (
-                        <ActionItemWrapper>
-                            <ActionItem
-                                onClick={() => {
-                                    toggleTor(!tor);
-                                }}
-                                label={<Translation id="TR_TOR" />}
-                                icon="TOR"
-                                isMobileLayout={props.isMobileLayout}
-                                marginLeft
-                                indicator={tor ? 'check' : undefined}
-                            />
-                        </ActionItemWrapper>
-                    ) : (
-                        <NavTor isActive={tor} />
-                    )}
-                </>
-            )}
+            {isDesktop() &&
+                (props.isMobileLayout ? (
+                    <ActionItem
+                        onClick={() => {
+                            toggleTor(!tor);
+                        }}
+                        label={<Translation id="TR_TOR" />}
+                        icon="TOR"
+                        isMobileLayout={props.isMobileLayout}
+                        marginLeft
+                        indicator={tor ? 'check' : undefined}
+                    />
+                ) : (
+                    <NavTor isActive={tor} />
+                ))}
 
             {allowPrerelease &&
                 (props.isMobileLayout ? (
