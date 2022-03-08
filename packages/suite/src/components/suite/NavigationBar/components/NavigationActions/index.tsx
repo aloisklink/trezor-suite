@@ -113,17 +113,18 @@ const NavigationActions = (props: Props) => {
                 />
             </ActionItemWrapper>
 
-            {props.isMobileLayout ? (
-                <ActionItem
-                    onClick={() => action('settings-coins')}
-                    label={<Translation id="TR_BACKENDS" />}
-                    icon="BACKEND"
-                    isMobileLayout={props.isMobileLayout}
-                    indicator={customBackends.length ? 'check' : undefined}
-                />
-            ) : (
-                <NavBackends customBackends={customBackends} />
-            )}
+            {!!customBackends.length &&
+                (props.isMobileLayout ? (
+                    <ActionItem
+                        onClick={() => action('settings-coins')}
+                        label={<Translation id="TR_BACKENDS" />}
+                        icon="BACKEND"
+                        isMobileLayout={props.isMobileLayout}
+                        indicator="check"
+                    />
+                ) : (
+                    <NavBackends customBackends={customBackends} />
+                ))}
 
             {isDesktop() && (
                 <>

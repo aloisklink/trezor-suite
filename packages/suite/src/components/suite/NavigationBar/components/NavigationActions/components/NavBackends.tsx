@@ -86,7 +86,7 @@ export const NavBackends = ({ customBackends }: NavBackendsProps) => {
         openModal: openModalAction,
     });
 
-    return customBackends.length ? (
+    return (
         <Wrapper>
             <Dropdown
                 onToggle={() => setOpen(!open)}
@@ -136,5 +136,5 @@ export const NavBackends = ({ customBackends }: NavBackendsProps) => {
                 />
             </Dropdown>
         </Wrapper>
-    ) : null;
+    );
 };
