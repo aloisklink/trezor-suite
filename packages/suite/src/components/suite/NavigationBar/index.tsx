@@ -5,10 +5,11 @@ import NavigationActions from './components/NavigationActions';
 import styled from 'styled-components';
 import { Icon, useTheme, variables } from '@trezor/components';
 import { useLayoutSize } from '@suite-hooks';
+import { useGuide, GUIDE_ANIMATION_DURATION_MS } from '@guide-hooks/useGuide';
 
 const StyledDeviceSelector = styled(DeviceSelector)``;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ guideOpen: boolean; isModalOpen: boolean }>`
     display: flex;
     width: 100%;
     min-height: 80px;
@@ -18,6 +19,9 @@ const Wrapper = styled.div`
     align-items: center;
     background: ${props => props.theme.BG_WHITE};
     border-bottom: 1px solid ${props => props.theme.STROKE_GREY};
+    transition: ${({ isModalOpen }) =>
+        !isModalOpen && `filter ${GUIDE_ANIMATION_DURATION_MS}ms ease-in`};
+    filter: ${({ guideOpen, isModalOpen }) => (guideOpen || isModalOpen) && 'blur(3px)'};
 
     &${StyledDeviceSelector}:hover {
         /* apply same device selector's hover styles on hover anywhere in navigation panel */
@@ -25,8 +29,9 @@ const Wrapper = styled.div`
         box-shadow: 0 1px 2px 0 ${props => props.theme.BOX_SHADOW_BLACK_20};
     }
 
-    @media screen and (min-width: ${variables.SCREEN_SIZE.LG}) {
+    ${variables.SCREEN_QUERY.ABOVE_LAPTOP} {
         padding: 6px 32px 6px 8px;
+        filter: ${({ guideOpen, isModalOpen }) => guideOpen && !isModalOpen && 'none'};
     }
 `;
 
@@ -55,8 +60,10 @@ const ExpandedMobileNavigation = styled.div`
 
 const NavigationBar = () => {
     const [opened, setOpened] = useState(false);
+
     const { isMobileLayout } = useLayoutSize();
     const theme = useTheme();
+    const { guideOpen, isModalOpen } = useGuide();
 
     const closeMainNavigation = () => {
         setOpened(false);
@@ -65,7 +72,7 @@ const NavigationBar = () => {
     if (isMobileLayout) {
         return (
             <>
-                <Wrapper>
+                <Wrapper guideOpen={guideOpen} isModalOpen={isModalOpen}>
                     <StyledDeviceSelector />
                     <HamburgerWrapper>
                         <Icon
@@ -95,7 +102,7 @@ const NavigationBar = () => {
     }
 
     return (
-        <Wrapper>
+        <Wrapper guideOpen={guideOpen} isModalOpen={isModalOpen}>
             <StyledDeviceSelector />
             <MainNavigation />
             <NavigationActions />

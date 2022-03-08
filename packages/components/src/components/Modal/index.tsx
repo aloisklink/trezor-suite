@@ -39,7 +39,6 @@ const ModalOverlay = styled.div<{ guidePanelSize: string }>`
     top: 0px;
     left: 0;
     background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(5px);
     display: flex;
     flex-direction: column;
     align-items: center;

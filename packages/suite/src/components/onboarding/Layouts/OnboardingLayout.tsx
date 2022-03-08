@@ -4,13 +4,14 @@ import styled from 'styled-components';
 import { TrezorLogo, Button, variables } from '@trezor/components';
 import { TrezorLink, Translation } from '@suite-components';
 import ProgressBar from '@onboarding-components/ProgressBar';
-import { useOnboarding, useSelector } from '@suite-hooks';
+import { useOnboarding } from '@suite-hooks';
 import { SUPPORT_URL } from '@suite-constants/urls';
 import { MAX_WIDTH } from '@suite-constants/layout';
 import steps from '@onboarding-config/steps';
 import { GuideButton, GuidePanel } from '@guide-components';
 import { useMessageSystem } from '@suite-hooks/useMessageSystem';
 import MessageSystemBanner from '@suite-components/Banners/MessageSystemBanner';
+import { GUIDE_ANIMATION_DURATION_MS, useGuide } from '@guide-hooks/useGuide';
 
 const Wrapper = styled.div`
     display: flex;
@@ -27,13 +28,15 @@ const Body = styled.div`
     height: 100%;
 `;
 
-const ContentWrapper = styled.div`
+const ContentWrapper = styled.div<{ isBlurred: boolean }>`
     display: flex;
     flex-direction: column;
     flex: 1;
     padding: 20px;
     align-items: center;
     overflow: auto;
+    transition: filter ${GUIDE_ANIMATION_DURATION_MS}ms ease-in;
+    filter: ${({ isBlurred }) => isBlurred && 'blur(3px)'};
 `;
 
 const Header = styled.div`
@@ -119,15 +122,12 @@ const OnboardingLayout = ({ children }: Props) => {
     const { activeStepId } = useOnboarding();
     const activeStep = steps.find(step => step.id === activeStepId)!;
 
-    const { guideOpen } = useSelector(state => ({
-        guideOpen: state.guide.open,
-    }));
-
+    const { guideOpen, isGuideOnTop } = useGuide();
     return (
         <Wrapper>
             {banner && <MessageSystemBanner message={banner} />}
             <Body>
-                <ContentWrapper>
+                <ContentWrapper isBlurred={guideOpen && isGuideOnTop}>
                     <Header>
                         <LogoHeaderRow>
                             <TrezorLogo type="suite" width="128px" />

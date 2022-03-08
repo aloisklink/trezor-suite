@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled, { css, keyframes } from 'styled-components';
+import styled, { css } from 'styled-components';
 import { AnimatePresence, motion } from 'framer-motion';
 import FocusLock from 'react-focus-lock';
 
@@ -21,16 +21,6 @@ const fullHeightStyle = css`
     z-index: ${variables.Z_INDEX.GUIDE_PANEL_BESIDE_MODAL};
 `;
 
-const smoothBlur = keyframes`
-    from {
-        backdrop-filter: blur(0px);
-    }
-
-    to {
-        backdrop-filter: blur(3px);
-    }
-`;
-
 const BackDrop = styled.div`
     position: fixed;
     top: 0;
@@ -38,7 +28,6 @@ const BackDrop = styled.div`
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.3);
-    animation: ${smoothBlur} 0.3s ease-in forwards;
     z-index: ${variables.Z_INDEX.GUIDE_PANEL_BESIDE_MODAL};
     cursor: pointer;
 

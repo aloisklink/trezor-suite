@@ -1,4 +1,4 @@
-import React, { useState, createContext, useEffect } from 'react';
+import React, { useState, createContext, useEffect, useRef } from 'react';
 import styled, { css } from 'styled-components';
 
 import { variables } from '@trezor/components';
@@ -10,14 +10,15 @@ import { MAX_WIDTH } from '@suite-constants/layout';
 import { DiscoveryProgress } from '@wallet-components';
 import NavigationBar from '../NavigationBar';
 import { useLayoutSize, useSelector, useDevice } from '@suite-hooks';
-import { useGuide } from '@guide-hooks';
+import { GUIDE_ANIMATION_DURATION_MS, useGuide } from '@guide-hooks';
 
-const PageWrapper = styled.div`
+const PageWrapper = styled.div<{ isBlurred: boolean }>`
     display: flex;
     flex: 1;
     flex-direction: column;
     height: 100vh;
     overflow-x: hidden;
+    /* filter: ${({ isBlurred }) => isBlurred && 'blur(5px)'}; */
 `;
 
 const Body = styled.div`
@@ -61,7 +62,7 @@ const Columns = styled.div<{
         `}
 `;
 
-const AppWrapper = styled.div`
+const AppWrapper = styled.div<{ guideOpen: boolean; isModalOpen: boolean }>`
     display: flex;
     flex: 1;
     color: ${props => props.theme.TYPE_DARK_GREY};
@@ -72,9 +73,16 @@ const AppWrapper = styled.div`
     width: 100%;
     align-items: center;
     position: relative;
+    transition: ${({ isModalOpen }) =>
+        !isModalOpen && `filter ${GUIDE_ANIMATION_DURATION_MS}ms ease-in`};
+    filter: ${({ guideOpen, isModalOpen }) => (guideOpen || isModalOpen) && 'blur(3px)'};
 
     @media screen and (max-width: ${variables.SCREEN_SIZE.LG}) {
         overflow-x: hidden;
+    }
+
+    ${variables.SCREEN_QUERY.ABOVE_LAPTOP} {
+        filter: ${({ guideOpen, isModalOpen }) => guideOpen && !isModalOpen && 'none'};
     }
 `;
 
@@ -103,6 +111,8 @@ const DefaultPaddings = styled.div`
 
 interface MobileBodyProps {
     url: string;
+    guideOpen: boolean;
+    isModalOpen: boolean;
     menu?: React.ReactNode;
     appMenu?: React.ReactNode;
     children?: React.ReactNode;
@@ -110,8 +120,6 @@ interface MobileBodyProps {
 
 interface NormalBodyProps extends MobileBodyProps {
     isMenuInline: boolean;
-    isModalOpen?: boolean;
-    guideOpen?: boolean;
     isNarrow?: boolean;
     isModalOpenLastChange?: boolean;
 }
@@ -132,17 +140,22 @@ export const LayoutContext = createContext<LayoutContextI>({
     setLayout: undefined,
 });
 
-type ScrollAppWrapperProps = Pick<MobileBodyProps, 'url' | 'children'>;
+type ScrollAppWrapperProps = Pick<
+    MobileBodyProps,
+    'url' | 'guideOpen' | 'isModalOpen' | 'children'
+>;
 // ScrollAppWrapper is mandatory to reset AppWrapper scroll position on url change, fix: issue #1658
-const ScrollAppWrapper = ({ url, children }: ScrollAppWrapperProps) => {
-    const ref = React.useRef<HTMLDivElement>(null);
-    React.useEffect(() => {
+const ScrollAppWrapper = ({ url, guideOpen, isModalOpen, children }: ScrollAppWrapperProps) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
         const { current } = ref;
         if (!current) return;
         current.scrollTop = 0; // reset scroll position on url change
     }, [ref, url]);
+
     return (
-        <AppWrapper ref={ref} data-test="@app">
+        <AppWrapper ref={ref} guideOpen={guideOpen} isModalOpen={isModalOpen} data-test="@app">
             {children}
         </AppWrapper>
     );
@@ -167,7 +180,7 @@ const BodyNormal = ({
             isNarrow={isNarrow}
         >
             {!isMenuInline && menu && <MenuSecondary>{menu}</MenuSecondary>}
-            <ScrollAppWrapper url={url}>
+            <ScrollAppWrapper url={url} guideOpen={guideOpen} isModalOpen={isModalOpen}>
                 {isMenuInline && menu}
                 {appMenu}
                 <DefaultPaddings>
@@ -179,10 +192,10 @@ const BodyNormal = ({
     </Body>
 );
 
-const BodyMobile = ({ url, menu, appMenu, children }: MobileBodyProps) => (
+const BodyMobile = ({ url, menu, appMenu, guideOpen, isModalOpen, children }: MobileBodyProps) => (
     <Body>
         <Columns>
-            <ScrollAppWrapper url={url}>
+            <ScrollAppWrapper url={url} guideOpen={guideOpen} isModalOpen={isModalOpen}>
                 {menu}
                 {appMenu}
                 <DefaultPaddings>{children}</DefaultPaddings>
@@ -231,7 +244,7 @@ const SuiteLayout: React.FC = ({ children }) => {
     const isNavigationBarVisible = device?.mode === 'normal';
 
     return (
-        <PageWrapper>
+        <PageWrapper isBlurred={isModalOpen}>
             <Metadata title={title} />
             <SuiteBanners />
             {isNavigationBarVisible && <NavigationBar />}
@@ -251,8 +264,15 @@ const SuiteLayout: React.FC = ({ children }) => {
                         {children}
                     </BodyNormal>
                 )}
+
                 {isMobileLayout && (
-                    <BodyMobile menu={menu} appMenu={appMenu} url={router.url}>
+                    <BodyMobile
+                        menu={menu}
+                        appMenu={appMenu}
+                        guideOpen={guideOpen}
+                        isModalOpen={isModalOpen}
+                        url={router.url}
+                    >
                         {children}
                     </BodyMobile>
                 )}

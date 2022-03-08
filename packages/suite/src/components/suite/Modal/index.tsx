@@ -33,6 +33,7 @@ const Modal: React.FC<ModalProps> = ({ headerComponents, ...props }) => {
                 size={22}
                 hoverColor={colors.TYPE_ORANGE}
                 onClick={openGuide}
+                key="guide"
             />
         ),
         [openGuide],

@@ -12,7 +12,7 @@ import { TREZOR_URL, SUITE_URL } from '@suite-constants/urls';
 import { resolveStaticPath } from '@suite-utils/build';
 import { useSelector } from '@suite-hooks';
 import { GuideButton, GuidePanel } from '@guide-components';
-import { useGuide } from '@guide-hooks';
+import { GUIDE_ANIMATION_DURATION_MS, useGuide } from '@guide-hooks';
 import { NavSettings } from '@suite-components/NavigationBar/components/NavigationActions/components/NavSettings';
 
 const Wrapper = styled.div`
@@ -42,7 +42,7 @@ const WelcomeWrapper = styled.div`
     }
 `;
 
-const MotionWelcome = styled(motion.div)`
+const MotionWelcome = styled(motion.div)<{ isBlurred: boolean }>`
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -50,6 +50,8 @@ const MotionWelcome = styled(motion.div)`
     display: flex;
     height: 100%;
     overflow: hidden;
+    transition: filter ${GUIDE_ANIMATION_DURATION_MS}ms ease-in;
+    filter: ${({ isBlurred }) => isBlurred && 'blur(3px)'};
 `;
 
 const WelcomeTitle = styled(H1)`
@@ -63,7 +65,7 @@ const Bottom = styled.div`
     margin: 24px 0px;
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ isBlurred: boolean }>`
     display: flex;
     position: relative;
     flex-direction: column;
@@ -78,6 +80,8 @@ const Content = styled.div`
     color: ${props => props.theme.TYPE_DARK_GREY};
     align-items: center;
     overflow-y: auto;
+    transition: filter ${GUIDE_ANIMATION_DURATION_MS}ms ease-in;
+    filter: ${({ isBlurred }) => isBlurred && 'blur(3px)'};
 
     @media (max-width: ${variables.SCREEN_SIZE.SM}) {
         padding: 12px;
@@ -107,7 +111,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
     const { screenWidth } = useSelector(state => ({
         screenWidth: state.resize.screenWidth,
     }));
-    const { guideOpen } = useGuide();
+    const { guideOpen, isGuideOnTop } = useGuide();
 
     // do not animate welcome bar on initial load
     const [firstRenderDone, setFirstRenderDone] = useState(false);
@@ -125,7 +129,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
             <Body>
                 <WelcomeWrapper>
                     <AnimatePresence>
-                        {!guideOpen && (
+                        {((guideOpen && isGuideOnTop) || !guideOpen) && (
                             <MotionWelcome
                                 initial={
                                     !firstRenderDone
@@ -142,6 +146,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
                                     width: 0,
                                     transition: { duration: 0.3, bounce: 0 },
                                 }}
+                                isBlurred={guideOpen}
                             >
                                 <Expander>
                                     <TrezorLogo type="suite" width="128px" />
@@ -179,7 +184,8 @@ const WelcomeLayout: React.FC = ({ children }) => {
                         )}
                     </AnimatePresence>
                 </WelcomeWrapper>
-                <Content>
+
+                <Content isBlurred={guideOpen && isGuideOnTop}>
                     <SettingsWrapper>
                         <NavSettings />
                     </SettingsWrapper>
