@@ -43,4 +43,6 @@ export * from './constants/keyboardEvents';
 
 export * from './support/types';
 
+export * from './mixins/Scaling';
+
 export { colors, THEME };
