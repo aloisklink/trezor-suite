@@ -111,7 +111,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
     const { screenWidth } = useSelector(state => ({
         screenWidth: state.resize.screenWidth,
     }));
-    const { guideOpen, isGuideOnTop } = useGuide();
+    const { isGuideOpen, isGuideOnTop } = useGuide();
 
     // do not animate welcome bar on initial load
     const [firstRenderDone, setFirstRenderDone] = useState(false);
@@ -129,7 +129,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
             <Body>
                 <WelcomeWrapper>
                     <AnimatePresence>
-                        {((guideOpen && isGuideOnTop) || !guideOpen) && (
+                        {((isGuideOpen && isGuideOnTop) || !isGuideOpen) && (
                             <MotionWelcome
                                 initial={
                                     !firstRenderDone
@@ -146,7 +146,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
                                     width: 0,
                                     transition: { duration: 0.3, bounce: 0 },
                                 }}
-                                isBlurred={guideOpen}
+                                isBlurred={isGuideOpen}
                             >
                                 <Expander>
                                     <TrezorLogo type="suite" width="128px" />
@@ -185,7 +185,7 @@ const WelcomeLayout: React.FC = ({ children }) => {
                     </AnimatePresence>
                 </WelcomeWrapper>
 
-                <Content isBlurred={guideOpen && isGuideOnTop}>
+                <Content isBlurred={isGuideOpen && isGuideOnTop}>
                     <SettingsWrapper>
                         <NavSettings />
                     </SettingsWrapper>

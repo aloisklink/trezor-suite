@@ -9,7 +9,7 @@ import { useGuide, GUIDE_ANIMATION_DURATION_MS } from '@guide-hooks/useGuide';
 
 const StyledDeviceSelector = styled(DeviceSelector)``;
 
-const Wrapper = styled.div<{ guideOpen: boolean; isModalOpen: boolean }>`
+const Wrapper = styled.div<{ isGuideOpen: boolean; isModalOpen: boolean }>`
     display: flex;
     width: 100%;
     min-height: 80px;
@@ -17,21 +17,21 @@ const Wrapper = styled.div<{ guideOpen: boolean; isModalOpen: boolean }>`
     z-index: ${variables.Z_INDEX.NAVIGATION_BAR};
     padding: 6px 8px;
     align-items: center;
-    background: ${props => props.theme.BG_WHITE};
-    border-bottom: 1px solid ${props => props.theme.STROKE_GREY};
+    background: ${({ theme }) => theme.BG_WHITE};
+    border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
     transition: ${({ isModalOpen }) =>
         !isModalOpen && `filter ${GUIDE_ANIMATION_DURATION_MS}ms ease-in`};
-    filter: ${({ guideOpen, isModalOpen }) => (guideOpen || isModalOpen) && 'blur(3px)'};
+    filter: ${({ isGuideOpen, isModalOpen }) => (isGuideOpen || isModalOpen) && 'blur(3px)'};
 
     &${StyledDeviceSelector}:hover {
         /* apply same device selector's hover styles on hover anywhere in navigation panel */
         border-radius: 4px;
-        box-shadow: 0 1px 2px 0 ${props => props.theme.BOX_SHADOW_BLACK_20};
+        box-shadow: 0 1px 2px 0 ${({ theme }) => theme.BOX_SHADOW_BLACK_20};
     }
 
     ${variables.SCREEN_QUERY.ABOVE_LAPTOP} {
         padding: 6px 32px 6px 8px;
-        filter: ${({ guideOpen, isModalOpen }) => guideOpen && !isModalOpen && 'none'};
+        filter: ${({ isGuideOpen, isModalOpen }) => isGuideOpen && !isModalOpen && 'none'};
     }
 `;
 
@@ -58,12 +58,12 @@ const ExpandedMobileNavigation = styled.div`
     height: 100%;
 `;
 
-const NavigationBar = () => {
+export const NavigationBar: React.FC = () => {
     const [opened, setOpened] = useState(false);
 
     const { isMobileLayout } = useLayoutSize();
     const theme = useTheme();
-    const { guideOpen, isModalOpen } = useGuide();
+    const { isGuideOpen, isModalOpen } = useGuide();
 
     const closeMainNavigation = () => {
         setOpened(false);
@@ -72,7 +72,7 @@ const NavigationBar = () => {
     if (isMobileLayout) {
         return (
             <>
-                <Wrapper guideOpen={guideOpen} isModalOpen={isModalOpen}>
+                <Wrapper isGuideOpen={isGuideOpen} isModalOpen={isModalOpen}>
                     <StyledDeviceSelector />
                     <HamburgerWrapper>
                         <Icon
@@ -83,6 +83,7 @@ const NavigationBar = () => {
                         />
                     </HamburgerWrapper>
                 </Wrapper>
+
                 {opened && (
                     <MobileNavigationWrapper>
                         <ExpandedMobileNavigation>
@@ -102,12 +103,10 @@ const NavigationBar = () => {
     }
 
     return (
-        <Wrapper guideOpen={guideOpen} isModalOpen={isModalOpen}>
+        <Wrapper isGuideOpen={isGuideOpen} isModalOpen={isModalOpen}>
             <StyledDeviceSelector />
             <MainNavigation />
             <NavigationActions />
         </Wrapper>
     );
 };
-
-export default NavigationBar;

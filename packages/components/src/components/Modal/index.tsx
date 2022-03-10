@@ -379,7 +379,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     totalProgressBarSteps?: number;
     currentProgressBarStep?: number;
     centerContent?: boolean;
-    guideOpen?: boolean;
+    isGuideOpen?: boolean;
     headerComponents?: Array<React.ReactElement>;
 }
 
@@ -411,7 +411,7 @@ const Modal = ({
     totalProgressBarSteps,
     currentProgressBarStep,
     centerContent = false,
-    guideOpen = false,
+    isGuideOpen = false,
     headerComponents,
     ...rest
 }: Props) => {
@@ -508,7 +508,7 @@ const Modal = ({
     // if there is some background, return modal with a blurred background
     return (
         <ModalOverlay
-            guidePanelSize={guideOpen ? variables.LAYOUT_SIZE.GUIDE_PANEL_WIDTH : '0px'}
+            guidePanelSize={isGuideOpen ? variables.LAYOUT_SIZE.GUIDE_PANEL_WIDTH : '0px'}
             data-test="@modal"
             onClick={() => {
                 if (cancelable && onCancel) {
