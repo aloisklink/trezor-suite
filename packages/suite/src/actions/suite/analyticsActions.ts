@@ -422,6 +422,15 @@ export type AnalyticsEvent =
           payload: {
               networkSymbol: Account['symbol'];
           };
+      }
+    | {
+          type: 'app-update';
+          payload: {
+              fromVersion?: string;
+              toVersion?: string;
+              status: 'finished' | 'closed' | 'error';
+              version: 'stable' | 'beta';
+          };
       };
 
 const getUrl = () => {

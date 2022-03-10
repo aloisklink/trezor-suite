@@ -129,6 +129,11 @@ Added:
 -   create-backup
     -   status: 'finished' | 'error'
     -   error: string
+-   app-update
+    -   fromVersion: string
+    -   toVersion: string
+    -   status: 'finished' | 'cancelled' | 'error'
+    -   version: 'stable' | 'beta'
 
 ### 1.16
 

@@ -1,4 +1,17 @@
 import { AppState } from '@suite-types';
+import * as analyticsActions from '@suite-actions/analyticsActions';
+import {
+    getScreenWidth,
+    getScreenHeight,
+    getBrowserName,
+    getBrowserVersion,
+    getOsName,
+    getOsVersion,
+    getWindowWidth,
+    getWindowHeight,
+    getPlatformLanguages,
+} from '@suite-utils/env';
+import { UpdateInfo } from '@trezor/suite-desktop-api';
 
 import { AnalyticsEvent } from '@suite-actions/analyticsActions';
 
@@ -30,3 +43,42 @@ export const encodeDataToQueryString = (event: AnalyticsEvent, common: Common) =
 
     return params.toString();
 };
+
+// TODO(analytics-package): union a way how to define analytics actions
+export const reportSuiteReadyAction = (state: AppState) =>
+    analyticsActions.report({
+        type: 'suite-ready',
+        payload: {
+            language: state.suite.settings.language,
+            enabledNetworks: state.wallet.settings.enabledNetworks,
+            localCurrency: state.wallet.settings.localCurrency,
+            discreetMode: state.wallet.settings.discreetMode,
+            screenWidth: getScreenWidth(),
+            screenHeight: getScreenHeight(),
+            platformLanguages: getPlatformLanguages().join(','),
+            tor: state.suite.tor,
+            rememberedStandardWallets: state.devices.filter(d => d.remember && d.useEmptyPassphrase)
+                .length,
+            rememberedHiddenWallets: state.devices.filter(d => d.remember && !d.useEmptyPassphrase)
+                .length,
+            theme: state.suite.settings.theme.variant,
+            suiteVersion: process.env.VERSION || '',
+            earlyAccessProgram: state.desktopUpdate.allowPrerelease,
+            browserName: getBrowserName(),
+            browserVersion: getBrowserVersion(),
+            osName: getOsName(),
+            osVersion: getOsVersion(),
+            windowWidth: getWindowWidth(),
+            windowHeight: getWindowHeight(),
+        },
+    });
+
+export const getAppUpdatePayload = (
+    status: 'closed' | 'finished' | 'error',
+    updateInfo?: UpdateInfo,
+) => ({
+    fromVersion: process.env.VERSION || '',
+    toVersion: updateInfo?.version,
+    status,
+    version: updateInfo?.prerelease ? 'beta' : 'stable',
+});
